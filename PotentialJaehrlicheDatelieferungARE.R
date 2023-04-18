@@ -164,9 +164,7 @@ gfb_oereb_antijoin <- anti_join(gfb_distinct, prep_oereb, by = c("TYP_ZH_COD", "
   rename(TYP_BFSNR = BFSNR)
 #oereb_gfb_antijoin <- anti_join(prep_oereb, gfb_distinct, by = c("TYP_ZH_COD", "HANDLRAUM_NAME", "TYP_BFSNR" = "BFSNR"))
 
-# output final ----
-
-## TYP_ZH_COD_df ----
+# output final: TYP_ZH_COD_df ----
 # join df to prep_oereb
 TYP_ZH_COD_df <- prep_oereb %>%
   bind_rows(gfb_oereb_antijoin) %>%
@@ -195,12 +193,14 @@ TYP_ZH_COD_df <- prep_oereb %>%
     besch_gfb_m2_prov = ifelse(besch_anz == 0, 0, gfb_m2/besch_anz),
     einw_ant = einw_anz/(einw_anz+besch_anz)*100,
     besch_ant = besch_anz/(einw_anz+besch_anz)*100,
-    einw_gfb_m2_final = einw_gfb_m2_prov*einw_ant/100,
-    besch_gfb_m2_final = besch_gfb_m2_prov*besch_ant/100,
   ) %>%
+  mutate(
+    gfb_m2_final = case_when(
+      TYP_ZH_COD_aggr %in% c("Arbeitszone") ~ besch_gfb_m2_prov*besch_ant/100,
+      TYP_ZH_COD_aggr %in% c("Wohnzone") ~ einw_gfb_m2_prov*einw_ant/100
+    )) %>%
   {. ->>  TYP_ZH_COD_df_temp} %>%
   filter(TYP_ZH_COD_aggr != "Andere")
-
 
 # check
 ## should be == TRUE
