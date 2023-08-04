@@ -60,9 +60,7 @@ einw <- tbl(con, in_schema("EINWOHNER","EINW_BASIS")) %>%
       # EWID vorhanden
       !is.na(DW_ADDR_EWID) & DW_ADDR_EGID != 999
   ) %>%
-  #group_by(DW_ADDR_EGID, DW_ADDR_EWID, STICHTAG) %>%
-  #summarize(einw_anz = n()) %>%
-  ungroup() %>%
+  select(DW_ADDR_EGID) %>%
   collect() %>%
   {. ->>  einw_temp1} %>%
   left_join(geb, by = c("DW_ADDR_EGID" = "EGID")) %>%
